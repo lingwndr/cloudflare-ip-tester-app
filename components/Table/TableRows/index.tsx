@@ -3,6 +3,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { TableHeaderColumn } from "../TableHeader";
 import { Text, View } from "@/components/Themed";
 import { tableSharedStyles } from "..";
+import { Ionicons } from '@expo/vector-icons';
+import { addRecord } from "@/services/cfApi";
+import { getStoredJson } from "@/storage/localStorage";
 
 function TableRow<Row, Column extends TableHeaderColumn>(props: {
   row: Row;
@@ -33,7 +36,31 @@ function TableRow<Row, Column extends TableHeaderColumn>(props: {
             }}
           >
             <Text selectable={true} style={{ ...cellTextStyle }}>
-              {rowText}
+              {index == 0 && 
+                <TouchableOpacity
+                  onPress={() => {
+                    console.log(rowText);
+                    getStoredJson('cfKey', {cfKey: ''}).then(res => {
+                      //console.log('inint: cfKey: ', res['cfKey']);
+                      let cfKey = res['cfKey'];
+                      getStoredJson('zone', {}).then(res => {
+                        let zoneId = res['zoneId'];
+                        let subDomain = res['subDomain'];
+                        addRecord(cfKey, zoneId, rowText, subDomain, function(err, res){
+                          if(err){
+                            alert(JSON.stringify(err?.message));
+                          }
+                          else{
+                            alert(rowText + ' added successfully!');
+                          }
+                        })
+                      });
+                    });
+                  }}>
+                  <Ionicons name="push-outline" size={15} color="blue" />
+                </TouchableOpacity>
+              }
+              &nbsp;{rowText}
             </Text>
           </View>
         );
